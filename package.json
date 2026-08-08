@@ -1,0 +1,12 @@
+{
+  "name": "clearwave",
+  "private": true,
+  "description": "Root delegator. The deployable Next.js app lives in app/ — set Railway's Root Directory to 'app' and this file is ignored. It exists so a builder pointed at the repo root still produces a working deploy instead of failing to detect a language.",
+  "scripts": {
+    "build": "cd app && npm ci && npm run build",
+    "start": "cd app && npm run start"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
