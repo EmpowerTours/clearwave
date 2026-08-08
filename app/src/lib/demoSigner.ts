@@ -20,32 +20,38 @@ import { chain } from "./contracts";
  */
 export type DemoWalletKey = "verified" | "unverified";
 
-const ENV_VAR: Record<DemoWalletKey, string> = {
-  verified: "DEMO_VERIFIED_PRIVATE_KEY",
-  unverified: "DEMO_UNVERIFIED_PRIVATE_KEY",
-};
+const VERIFIED_KEY_VAR = "DEMO_VERIFIED_PRIVATE_KEY";
 
 export function isDemoWalletKey(v: unknown): v is DemoWalletKey {
   return v === "verified" || v === "unverified";
 }
 
-/** True when both demo signers are configured; the UI hides the buy panel otherwise. */
+/** True when the verified signer is configured; the UI hides the buy panel otherwise. */
 export function demoSigningAvailable(): boolean {
-  return Object.values(ENV_VAR).every((name) => Boolean(process.env[name]));
+  return Boolean(process.env[VERIFIED_KEY_VAR]);
 }
 
-export function getDemoAccount(which: DemoWalletKey) {
-  const raw = process.env[ENV_VAR[which]];
+/**
+ * Only the verified wallet ever signs.
+ *
+ * `buy()` evaluates compliance before it touches payment, so the unverified wallet
+ * always reverts during simulation and no transaction is ever broadcast from it. It
+ * therefore needs an address, not a key — and its address is already public in
+ * demoWallets.ts. Keeping its key out of the deployment removes a live private key
+ * from the server environment for no loss of demo fidelity.
+ */
+export function getVerifiedAccount() {
+  const raw = process.env[VERIFIED_KEY_VAR];
   if (!raw) {
-    throw new Error(`${ENV_VAR[which]} is not set`);
+    throw new Error(`${VERIFIED_KEY_VAR} is not set`);
   }
   const key = (raw.startsWith("0x") ? raw : `0x${raw}`) as Hex;
   return privateKeyToAccount(key);
 }
 
-export function getDemoWalletClient(which: DemoWalletKey) {
+export function getVerifiedWalletClient() {
   return createWalletClient({
-    account: getDemoAccount(which),
+    account: getVerifiedAccount(),
     chain,
     transport: http(process.env.MONAD_TESTNET_RPC ?? undefined),
   });

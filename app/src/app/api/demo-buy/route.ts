@@ -4,11 +4,12 @@ import { BaseError, ContractFunctionRevertedError } from "viem";
 import { ABIS, CONTRACTS, explorerUrl } from "@/lib/contracts";
 import {
   demoSigningAvailable,
-  getDemoAccount,
-  getDemoWalletClient,
+  getVerifiedAccount,
+  getVerifiedWalletClient,
   isDemoWalletKey,
   type DemoWalletKey,
 } from "@/lib/demoSigner";
+import { DEMO_WALLETS } from "@/lib/demoWallets";
 import { publicClient } from "@/lib/publicClient";
 
 export const dynamic = "force-dynamic";
@@ -165,7 +166,17 @@ export async function POST(req: Request) {
   }
 
   const which = wallet as DemoWalletKey;
-  const account = getDemoAccount(which);
+
+  /**
+   * The unverified wallet is simulated from its public address and never signs. It has
+   * no key on this server, and needs none: `buy()` evaluates compliance before payment,
+   * so its simulation always reverts and there is nothing to broadcast.
+   */
+  const account =
+    which === "verified"
+      ? getVerifiedAccount()
+      : (DEMO_WALLETS.find((w) => w.key === "unverified")!
+          .address as `0x${string}`);
 
   try {
     // Simulate first. A refusal is an expected outcome here, not an exception —
@@ -179,7 +190,7 @@ export async function POST(req: Request) {
       account,
     });
 
-    const hash = await getDemoWalletClient(which).writeContract(request);
+    const hash = await getVerifiedWalletClient().writeContract(request);
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
     if (receipt.status !== "success") {
