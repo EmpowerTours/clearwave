@@ -1,8 +1,10 @@
 import { formatUnits } from "viem";
 
 import { ConnectedWallet } from "@/components/ConnectedWallet";
+import { DemoBuy } from "@/components/DemoBuy";
 import { Addr, Badge, Panel, Row } from "@/components/ui";
 import { CONTRACTS, PAYMENT_DECIMALS, chain } from "@/lib/contracts";
+import { demoSigningAvailable } from "@/lib/demoSigner";
 import { DEMO_WALLETS } from "@/lib/demoWallets";
 import { canBuy, getOffering, getOfferingCount } from "@/lib/reads";
 
@@ -101,6 +103,8 @@ export default async function Page() {
           ))}
         </div>
       </Panel>
+
+      {demoSigningAvailable() && <DemoBuy offeringId={id} />}
 
       <ConnectedWallet offeringId={id} />
 
