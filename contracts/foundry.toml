@@ -1,0 +1,23 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+test = "test"
+script = "script"
+solc_version = "0.8.20"
+optimizer = true
+optimizer_runs = 200
+via_ir = true
+remappings = [
+    "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+    "forge-std/=lib/forge-std/src/",
+]
+
+[rpc_endpoints]
+# Cleanverse's sandbox lives on Monad TESTNET (10143). The A-Pass ERC-721 has real
+# holders there and none on mainnet, so mainnet compliance checks all fail closed.
+monad_testnet = "https://testnet-rpc.monad.xyz"
+
+[etherscan]
+# Monad testnet is in the Etherscan V2 chainlist -> testnet.monadscan.com
+monad_testnet = { key = "${MONADSCAN_API_KEY}", chain = 10143, url = "https://api.etherscan.io/v2/api?chainid=10143" }

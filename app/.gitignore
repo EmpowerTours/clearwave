@@ -1,0 +1,18 @@
+node_modules/
+.next/
+out/
+build/
+.DS_Store
+*.tsbuildinfo
+
+# Secrets — the Cleanverse api-key is an AES key that decrypts every API response.
+# It must never be committed and never reach the client bundle.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Local demo wallet keystores
+wallets.json
+.clearwave/
