@@ -68,6 +68,41 @@ gas-burning registry would take down `verify()`, every `buy()`, and every fronte
 across all pools simultaneously. Calls are gas-capped at 150k and failure is treated as
 an answer — unreachable registry means not verified.
 
+### Gateway surface → on-chain equivalent
+
+| Cleanverse gateway | Clearwave on Monad | status |
+|---|---|---|
+| `POST /validator/register` | `register(pool, rule)` | full |
+| `POST /validator/set_rule` | `setRule(pool, rule)` | full |
+| `POST /validator/add_rule` | `addRule(pool, rule)` — same duplicate rejection | full |
+| `POST /validator/remove_rule` | `removeRule(pool, index)` | full |
+| `POST /validator/set_paused` | `setPaused(pool, bool)` | full |
+| `GET /validator/verify` | `verify(pool, wallet) → (ok, checked)` | full, plus honesty flag |
+| `GET /validator/rules` | `rules(pool)`, `ruleCount(pool)` | full |
+| A-Pass possession | `hasAPass(wallet)` via ERC-721 `balanceOf` | full |
+| tier / subTier / country match | `_satisfies()` — logic complete | gated on `attributeOracle` |
+
+Every gateway operation Cleanverse exposes for `base` has an on-chain counterpart here.
+The one row that is not live is not missing logic — it is missing a data source
+Cleanverse does not yet publish on Monad, and `verify()` reports that fact rather than
+concealing it.
+
+### Why testnet — a CVI finding, not a shortcut
+
+The A-Pass registry `0xbA82D189540CaC9DC6FF46B6837CaC1BFdEC58B9` is deployed at the
+**same address on Monad mainnet and testnet** — both carry proxy code. The difference is
+issuance: on testnet our demo wallet reads `balanceOf = 1`; on mainnet the same wallet
+reads `0`. The mainnet registry is live but has no holders.
+
+A mainnet deployment would therefore refuse every wallet in existence, including the
+artist's own investors — the compliance gate would be functionally a closed door. That
+is a property of Cleanverse's issuance state, not of this codebase, and it is verifiable
+by anyone with an RPC endpoint.
+
+`setAPassRegistry` is owner-settable precisely for this: the same deployed validator
+begins enforcing against mainnet A-Passes the day Cleanverse issues them, with no
+redeploy and no migration.
+
 ## Deployed — Monad testnet
 
 | contract | address |
