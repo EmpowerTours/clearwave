@@ -95,14 +95,31 @@ concealing it.
 ### Why testnet — a CVI finding, not a shortcut
 
 The A-Pass registry `0xbA82D189540CaC9DC6FF46B6837CaC1BFdEC58B9` is deployed at the
-**same address on Monad mainnet and testnet** — both carry proxy code. The difference is
-issuance: on testnet our demo wallet reads `balanceOf = 1`; on mainnet the same wallet
-reads `0`. The mainnet registry is live but has no holders.
+**same address on Monad mainnet and testnet** — both carry proxy code, and the mainnet
+copy answers `name() = "A-Pass"` and `supportsInterface(0x80ac58cd) = true`. It is a
+real, live ERC-721.
 
-A mainnet deployment would therefore refuse every wallet in existence, including the
-artist's own investors — the compliance gate would be functionally a closed door. That
-is a property of Cleanverse's issuance state, not of this codebase, and it is verifiable
-by anyone with an RPC endpoint.
+What it has never done is issue anything. Querying the mainnet registry for `Transfer`
+events from genesis to head returns **zero results** — not one A-Pass has ever been
+minted on Monad mainnet, by any institution. On testnet our demo wallet reads
+`balanceOf = 1`; on mainnet, `0`.
+
+Two things follow. A mainnet deployment would refuse every wallet in existence, so the
+compliance gate would be a permanently closed door rather than a demonstrable control.
+And A-Pass issuance is gated on Cleanverse's side: institutional credentials are scoped
+to the sandbox environment, which writes to test networks. No amount of contract work on
+our side produces a mainnet A-Pass.
+
+Every claim above is verifiable by anyone with a Monad RPC endpoint and the registry
+address.
+
+**What this codebase can prove on mainnet today.** The validator's dependency on
+Cleanverse is a single ERC-721 `balanceOf` call against a contract that already exists on
+mainnet. Deploying `APassComplianceValidator` to Monad mainnet and pointing it at the
+live registry exercises the entire integration path — deploy, pool registration, rule
+storage, and a real read against Cleanverse's production contract. It returns `false`
+for every wallet, correctly, because no credential exists to return `true` for. The only
+untestable branch is the positive one, and it is untestable for everyone, not just us.
 
 `setAPassRegistry` is owner-settable precisely for this: the same deployed validator
 begins enforcing against mainnet A-Passes the day Cleanverse issues them, with no
