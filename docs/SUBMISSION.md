@@ -161,10 +161,14 @@ transaction path, and three rounds of audit-fix tests.
 
 Adversarial review drove concrete changes. Rule and country lists are hard-capped
 (`MAX_RULES = 16`, `MAX_COUNTRIES = 32`) because `verify()` loops both and is called
-from `buy()` — measured at 16.5k gas for one rule versus 124k for sixty, so an
-unbounded owner could have pushed `buy()` past the block gas limit and bricked a live
-offering. The caps are constants rather than owner-settable precisely because the owner
-is the party they constrain. `renounceOwnership` is disabled: pool registration gates
+from `buy()`. Without a cap, an owner could grow the rule set until `buy()` exceeded the
+block gas limit and bricked a live offering.
+
+`test/ValidatorGas.t.sol` measures the bound directly — **18,657 gas at one rule,
+31,312 at the `MAX_RULES` ceiling of 16**, so the worst case is bounded and cheap.
+Reproduce with `forge test --match-contract ValidatorGasTest -vv`. The caps are
+constants rather than owner-settable precisely because the owner is the party they
+constrain. `renounceOwnership` is disabled: pool registration gates
 every new offering, so an ownerless validator would permanently freeze the platform via
 a single unconfirmed call.
 
