@@ -32,13 +32,18 @@ purpose; the contribution is making the gate unavoidable.
 
 ## CVI · CVA integration points
 
-**We read A-Pass directly on Monad, because the gateway does not serve it there.**
-Cleanverse's cooperate API exposes `/validator/*` for registering pools, setting rules,
-and verifying wallets. Empirically those endpoints answer only for `base` — `monad`
-returns error 12027, the same code returned for a chain slug that does not exist. The
-A-Pass registry itself, however, *is* deployed on Monad and is a standard ERC-721
-(`name() = "A-Pass"`, `symbol() = "APASS"`, `supportsInterface(0x80ac58cd) = true`), so
-a contract can read compliance state on-chain with no gateway in the path.
+**We read A-Pass directly on-chain rather than through the gateway.** Cleanverse's
+cooperate API exposes `/validator/*` for registering pools, setting rules, and verifying
+wallets. Monad is a documented supported chain, but our `/validator/*` calls against a
+Monad pool returned code **12027** — documented as *"validator on-chain read failed."*
+That is a gateway-side condition we cannot see into or control.
+
+The A-Pass registry itself, however, is deployed on Monad and is a standard ERC-721
+(`name() = "A-Pass"`, `symbol() = "APASS"`, `supportsInterface(0x80ac58cd) = true`), so a
+contract can read compliance state directly. We chose that path deliberately: an
+on-chain read is deterministic, has no API availability or rate-limit dependency, and —
+critically — is callable from inside `buy()`. A gateway cannot gate a transaction; only
+a contract can.
 
 **We validated the on-chain read against the gateway's own answer.** Across every
 sampled registered wallet, `balanceOf(w) == 1` coincided with `verify_apass` returning
