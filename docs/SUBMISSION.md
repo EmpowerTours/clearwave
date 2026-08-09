@@ -155,7 +155,7 @@ each demo wallet — the same check the buy transaction runs, not a UI mock.
 
 ## Build quality
 
-134 tests pass across seven suites, including a `ShareOffering` supply invariant, dust
+172 tests pass across ten suites, including a `ShareOffering` supply invariant, dust
 handling in `RoyaltyDistributor`, `canBuy` parity between the view helper and the
 transaction path, and three rounds of audit-fix tests.
 
