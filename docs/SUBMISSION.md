@@ -125,14 +125,30 @@ untestable branch is the positive one, and it is untestable for everyone, not ju
 begins enforcing against mainnet A-Passes the day Cleanverse issues them, with no
 redeploy and no migration.
 
-## Deployed — Monad testnet
+## Deployed
+
+**Monad mainnet (143)** — the compliance integration is live in production:
+
+| contract | address |
+|---|---|
+| APassComplianceValidator | `0x0ed0E0215eD7c99ac752b090504419868f2b25D7` (Monadscan-verified) |
+
+It reads Cleanverse's **production** A-Pass registry `0xbA82D189…` directly, and
+`hasAPass()` correctly returns `false` for every wallet queried — because no A-Pass has
+ever been issued on Monad mainnet. `enforcedAttributes()` returns `false`, honestly
+reporting that no attribute oracle is configured. The integration is deployed and
+functioning on mainnet; what is absent is issuance on Cleanverse's side, not code on
+ours.
+
+**Monad testnet (10143)** — the full offering flow, where sandbox-issued A-Passes make
+the compliant path demonstrable:
 
 | contract | address |
 |---|---|
 | ShareOffering | `0xD9ebD0BB7FCdbF171E855C34b58ed1A74B043a87` |
 | RoyaltyDistributor | `0x26b32987cb5d7946D81e0Cc7459f26CdeC773101` |
 | APassComplianceValidator | `0x45bDfe4A464dbF90D8915A2AeaCdc92C696256eB` |
-| Payment token | `0x1A3225eb4d5Eb81FcffD9cf5b554CfA3D02BaD40` |
+| Payment token (CWUSD) | `0x1A3225eb4d5Eb81FcffD9cf5b554CfA3D02BaD40` |
 
 The frontend performs live `canBuyAmount()` reads against these deployed contracts for
 each demo wallet — the same check the buy transaction runs, not a UI mock.
